@@ -34,12 +34,26 @@ public class BookListServlet extends HttpServlet {
 
         WebContext context =  new WebContext(webExchange);
 
-        context.setVariable("books", bookService.listBooks());
-        springTemplateEngine.process(
-                "listBooks.html",
-                context,
-                resp.getWriter()
-        );
+        String sbn = req.getParameter("searchedBookName");
+        if(sbn!=null)
+        {
+            Book book = bookService.listBooks().stream().filter(b->b.getTitle().equals(sbn)).findFirst().orElse(null);
+            context.setVariable("books",book);
+            springTemplateEngine.process(
+                    "listBooks.html",
+                    context,
+                    resp.getWriter()
+            );
+        }
+        else{
+            context.setVariable("books", bookService.listBooks());
+            springTemplateEngine.process(
+                    "listBooks.html",
+                    context,
+                    resp.getWriter()
+            );
+        }
+
     }
 
     @Override

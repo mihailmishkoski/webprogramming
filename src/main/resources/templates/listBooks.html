@@ -17,12 +17,12 @@
 </header>
 
 <main>
-<!--    <h2>Choose book:</h2>-->
-<!--    <form method ="GET">-->
-<!--        <label>Search book: </label>-->
-<!--        <input th:type="text" name="searchedBookName">-->
-<!--        <input type="submit" value="Submit">-->
-<!--    </form>-->
+    <h2>Choose book:</h2>
+    <form method ="GET">
+        <label>Search book: </label>
+        <input th:type="text" name="searchedBookName">
+        <input type="submit" value="Submit">
+    </form>
     <form method="POST" action="/listBooks">
 
         <ul th:each="book : ${books}">
