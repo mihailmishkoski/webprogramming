@@ -123,7 +123,7 @@ public class BookController {
         if (bookId != null) {
             book = bookService.findBookByIsbn(bookId);
         } else {
-            book = bookService.findBookByIsbn(bookIdFromController);
+            return "redirect:/books";
         }
 
         if (book != null) {
@@ -132,20 +132,19 @@ public class BookController {
             model.addAttribute("book", book);
             return "editBook";
         }
-
         return "redirect:/books";
     }
-    @GetMapping("/getEditForm/bookId")
-    public String getEditBookForm(@PathVariable String bookId)
-    {
-        Book book = bookService.listBooks().stream().filter(b -> b.getIsbn().matches(bookId)).findFirst().orElse(null);
-
-        if (book != null) {
-            return "redirect:books/getEditForm/" + bookId;
-        }
-
-        return "redirect:/books";
-        //treba dopolnitelno da frla nekoja greska, ne znam dali exception ili treba message da e pojavi.
-    }
+//    @GetMapping("/getEditForm/bookId")
+//    public String getEditBookForm(@PathVariable String bookId)
+//    {
+//        Book book = bookService.listBooks().stream().filter(b -> b.getIsbn().matches(bookId)).findFirst().orElse(null);
+//
+//        if (book != null) {
+//            return "redirect:books/getEditForm/" + bookId;
+//        }
+//
+//        return "redirect:/books";
+//        //treba dopolnitelno da frla nekoja greska, ne znam dali exception ili treba message da e pojavi.
+//    }
 
 }
