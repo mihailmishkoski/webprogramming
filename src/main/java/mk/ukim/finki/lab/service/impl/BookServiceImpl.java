@@ -7,11 +7,12 @@ import mk.ukim.finki.lab.repository.AuthorRepository;
 import mk.ukim.finki.lab.repository.BookRepository;
 import mk.ukim.finki.lab.service.BookService;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Service
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bs;
@@ -45,6 +46,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book findBookByIsbn(String isbn) {
         return bs.findByIsbn(isbn);
+    }
+
+    @Override
+    public void saveBook(String isbn, String title, String genre, Integer year, String bookStoreId) {
+        bs.saveBook(isbn, title, genre, year, bookStoreId);
     }
 
 }

@@ -6,8 +6,47 @@
     <title>Books Homepage - Welcome to My Book Store</title>
     <style type="text/css">
         body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             width: 800px;
             margin: auto;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        main {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        input[type="radio"] {
+            margin-bottom: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -18,19 +57,32 @@
 
 <main>
     <h2>Choose book:</h2>
-    <form method ="GET">
+    <form method="POST">
         <label>Search book: </label>
         <input th:type="text" name="searchedBookName">
-        <input type="submit" value="Submit">
+        <input type="submit" value="Search">
     </form>
-    <form method="POST" action="/listBooks">
 
+    <form method="POST" action="/books/selectBook">
         <ul th:each="book : ${books}">
-        <input type="radio" name="bookIsbn" th:value="${book.getIsbn()}" th:text="'Title: ' + ${book.getTitle()}+', Genre: '+${book.getGenre()}+', Year: '+${book.getYear()}"><br>
-    </ul>
+            <li>
+                <input type="radio" name="bookIsbn" th:value="${book.getIsbn()}" th:text="'Title: ' + ${book.getTitle()} + ', Genre: ' + ${book.getGenre()} + ', Year: ' + ${book.getYear()} + ' Bookstore: ' + ${book.bookStore.name}">
+                <button type="submit"  name="action" th:formaction="'/books/getEditForm/' + ${book.getIsbn()}" value="edit">Edit</button>
+                <button name="action"  th:formaction="'/books/delete/' + ${book.getIsbn()}" type="submit"
+                        value="delete">Delete</button>
+            </li>
+        </ul>
 
-    <input type='submit' value='Submit'>
+        <input type='submit' value='Submit'>
     </form>
+
+    <form method="POST" action="/books/add">
+        <input type='submit' value='Add Book'>
+    </form>
+
+    <ul th:each="bookStore : ${listBooksShop}">
+        <input type="radio" name="bookIsbn" th:value="${bookStore.getName()}" th:text="'Title: ' + ${bookStore.getCity()} + ', Genre: ' + ${bookStore.getCity()} + ', Year: ' + ${book.getYear()}"><br>
+    </ul>
 </main>
 </body>
 </html>

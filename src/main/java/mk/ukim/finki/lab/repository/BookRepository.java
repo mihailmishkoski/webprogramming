@@ -5,6 +5,7 @@ import mk.ukim.finki.lab.model.Author;
 import mk.ukim.finki.lab.model.Book;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,11 @@ public class BookRepository {
             book.getAuthors().add(author); // Assuming you have a method to get the authors of a book
         }
         return author;
+    }
+    public void saveBook(String isbn, String title, String genre, Integer year, String bookSToreId){
+        Book book = new Book(isbn,title,genre,year,new ArrayList<>());
+        book.bookStore = DataHolder.bookStore.stream().filter(bs->bs.getId().equals(bookSToreId)).findFirst().orElse(null);
+        DataHolder.books.add(book);
     }
 
 }

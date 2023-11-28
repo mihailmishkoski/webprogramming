@@ -3,54 +3,139 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
+    <title>Details</title>
+</head>
+<body>
+<header>
+
+</header>
+
+<main>
+
+
+    <section>
+        <h2 th:text="${authorId}"></h2>
+        <!-- ... other content ... -->
+    </section>
+</main>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
     <title>Add new Author to Book</title>
     <style type = "text/css">
+
         body {
-            width: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 800px;
             margin: auto;
+            font-family: Arial, sans-serif;
         }
-        table {
-            width:100%;
+
+        main {
+            display: flex;
+            justify-content: space-between;
         }
-        table, td, th {
-            border: 1px solid black;
-            padding:3px 2px;
-        }
+
         section {
-            float: left;
-            margin: 0 1.5%;
-            width: 63%;
+            width: 60%;
         }
+
         aside {
-            float: right;
-            margin: 0 1.5%;
             width: 30%;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        a.btn-secondary {
+            display: inline-block;
+            background-color: #808080;
+            color: #fff;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        a.btn-secondary:hover {
+            background-color: #555;
         }
     </style>
 </head>
 <body>
-<header>
-    <h1>Select the Author to add to the Book </h1>
-</header>
+
+
 <section>
     <h2>Select author:</h2>
-    <form method="POST" action="/author">
-    <ul th:each="author : ${authors}">
-        <input type="radio" name="authorId" th:value="${author.getId()}" th:text="${author.getName()}"><br>
-
-    </ul>
+    <form method="POST" action="/books/selectBook/selectAuthor">
+        <ul th:each="author : ${authors}">
+            <li>
+                <input type="radio" name="authorId" th:value="${author.id}" />
+                <span th:text="'Name: ' + ${author.name}" />
+                <span th:text="'Surname: ' + ${author.surname}" />
+            </li>
+        </ul>
         <input type='submit' value='Add author'>
     </form>
     <br/>
+    <a th:href="@{/books}" class="btn btn-secondary">Back to Book Selection</a>
 
 
 </section>
 <aside>
     <table>
         <tr>
-            <!-- change to show selected book isbn -->
+
             <td><b>Book Isbn</b></td>
-            <td><span th:text="${session.currentIsbn}"></span></td>
+            <td><span th:text="${book.getIsbn()}"></span></td>
         </tr>
     </table>
 </aside>

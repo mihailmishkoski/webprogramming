@@ -9,4 +9,5 @@ public interface BookService {
     List<Book> listBooks();
     Author addAuthorToBook(Long authorId, String isbn);
     Book findBookByIsbn(String isbn);
+    void saveBook(String isbn, String title, String genre, Integer year, String bookStoreId);
 }
