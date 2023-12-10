@@ -1,5 +1,6 @@
 package mk.ukim.finki.lab.service.impl;
 
+import mk.ukim.finki.lab.model.Book;
 import mk.ukim.finki.lab.model.BookStore;
 import mk.ukim.finki.lab.repository.BookStoreRepository;
 import mk.ukim.finki.lab.service.BookService;
@@ -21,5 +22,7 @@ public class BookStoreImpl implements BookStoreService {
     public List<BookStore> findAll() {
         return bsr.findAll();
     }
+
+
 
 }

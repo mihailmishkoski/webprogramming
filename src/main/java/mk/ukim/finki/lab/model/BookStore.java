@@ -1,21 +1,23 @@
 package mk.ukim.finki.lab.model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Entity
+@Table(name = "book_store")
 public class BookStore {
-
-    private String id;
-    private String name;
-    private String city;
-    private String address;
-    private List<Book> booksInStore;
-    public BookStore(String id, String name, String city, String address) {
+    @Id
+    public Long id;
+    public String name;
+    public String city;
+    public String address;
+    @OneToMany
+    public List<Book> booksInStore;
+    public BookStore(Long id,String name, String city, String address) {
         this.id = id;
         this.name = name;
         this.city = city;
@@ -23,4 +25,7 @@ public class BookStore {
         booksInStore = new ArrayList<>();
     }
 
+    public BookStore() {
+
+    }
 }

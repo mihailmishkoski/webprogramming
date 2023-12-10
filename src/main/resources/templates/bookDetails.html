@@ -41,21 +41,22 @@
         }
 
         .btn-secondary:hover {
-            background-color: #4caf50;
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div>
+<div>
     <h2 th:text="${book.title}"></h2>
-        <h2 th:text="${book.bookStore.name}"></h2>
+    <h2 th:text="${book.bookStore.getName()}"></h2>
+
+    <h2>Authors:</h2><a th:href="@{/books/selectAuthor}" class="btn-secondary" th:method="post">Back to Book Selection</a>
+
+    <h2 th:text="${author.getFullname().name + ' ' + author.getFullname().surname}"></h2>
 
 
-    <h2>Authors:</h2>
-    <ul>
-        <li th:each="author : ${book.authors}" th:text="${author.name + ' ' + author.surname}"></li>
-    </ul>
-    <a th:href="@{/books/selectBook(bookIsbn=${book.getIsbn()})}" class="btn btn-secondary">Back to Book Selection</a>
-    </div>
+
+
+</div>
 </body>
 </html>

@@ -63,15 +63,17 @@
         <input type="submit" value="Search">
     </form>
 
-    <form method="POST" action="/books/selectBook">
+    <form method="POST" action="/books/selectAuthor">
         <ul th:each="book : ${books}">
             <li>
-                <input type="radio" name="bookIsbn" th:value="${book.getIsbn()}" th:text="'Title: ' + ${book.getTitle()} + ', Genre: ' + ${book.getGenre()} + ', Year: ' + ${book.getYear()} + ' Bookstore: ' + ${book.bookStore.name}">
+                <input type="radio" name="bookIsbn" th:value="${book.getIsbn()}" th:text="'Title: ' + ${book.getTitle()} + ', Genre: ' + ${book.getGenre()} + ', Year: ' + ${book.getYear()}">
+
                 <button type="submit"  name="action" th:formaction="'/books/getEditForm/' + ${book.getIsbn()}" value="edit">Edit</button>
                 <button name="action"  th:formaction="'/books/delete/' + ${book.getIsbn()}" type="submit"
                         value="delete">Delete</button>
             </li>
         </ul>
+
 
         <input type='submit' value='Submit'>
     </form>
@@ -80,9 +82,7 @@
         <input type='submit' value='Add Book'>
     </form>
 
-    <ul th:each="bookStore : ${listBooksShop}">
-        <input type="radio" name="bookIsbn" th:value="${bookStore.getName()}" th:text="'Title: ' + ${bookStore.getCity()} + ', Genre: ' + ${bookStore.getCity()} + ', Year: ' + ${book.getYear()}"><br>
-    </ul>
+
 </main>
 </body>
 </html>

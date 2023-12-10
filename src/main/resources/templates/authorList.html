@@ -115,15 +115,18 @@
 
 <section>
     <h2>Select author:</h2>
-    <form method="POST" action="/books/selectBook/selectAuthor">
+    <form method="POST" action="/books/selectAuthor/bookDetails">
         <ul th:each="author : ${authors}">
             <li>
-                <input type="radio" name="authorId" th:value="${author.id}" />
-                <span th:text="'Name: ' + ${author.name}" />
-                <span th:text="'Surname: ' + ${author.surname}" />
+                <input type="radio" name="authorId" th:value="${author.getId()}" />
+                <span th:text="'Name: ' + ${author.getFullname().name}" />
+                <span th:text="'Surname: ' + ${author.getFullname().surname}" />
             </li>
         </ul>
-        <input type='submit' value='Add author'>
+        <input type='submit' value='Submit'>
+    </form>
+    <form method="GET" action="/books/selectAuthor/getAuthorPage">
+        <input type='submit' value='Add new Author'>
     </form>
     <br/>
     <a th:href="@{/books}" class="btn btn-secondary">Back to Book Selection</a>

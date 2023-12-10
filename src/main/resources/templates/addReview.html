@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Book</title>
+    <title>Add Review - My Book Store</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,28 +53,20 @@
 
 <body>
 <div>
-    <form th:action="@{'/books/edit/' + ${book.getIsbn()}}" method="post">
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" th:value="${book.title}" required>
+    <h2>Add Review for Book: <span th:text="${book.title}"></span></h2>
+    <form action="/books/saveReview/" method="post">
+        <input type="hidden" name="bookId" th:value="${book.getIsbn()}">
 
-        <label for="isbn">ISBN:</label>
-        <input type="text" id="isbn" name="isbn" th:value="${book.isbn}" required>
+        <label for="score">Score:</label>
+        <input type="number" id="score" name="score" required>
 
-        <label for="genre">Genre:</label>
-        <input type="text" id="genre" name="genre" th:value="${book.genre}" required>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
 
-        <label for="year">Year:</label>
-        <input type="number" id="year" name="year" th:value="${book.year}" required>
+        <label>Date and Time:</label>
+        <input type="datetime-local" name="timestamp" required>
 
-        <label>Store:</label>
-        <select name="storeId" class="form-control">
-            <option th:each="store : ${bookStores}"
-                    th:text="${store.getName()}"
-                    th:value="${store.getId()}">
-            </option>
-        </select>
-
-        <input type="submit" value="Edit Book">
+        <input type="submit" value="Add Review">
     </form>
 </div>
 </body>

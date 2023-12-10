@@ -7,11 +7,15 @@ import mk.ukim.finki.lab.model.exceptions.BookNotFoundException;
 import mk.ukim.finki.lab.service.AuthorService;
 import mk.ukim.finki.lab.service.BookService;
 import mk.ukim.finki.lab.service.BookStoreService;
+import mk.ukim.finki.lab.service.ReviewService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 
 @Controller
 @SessionAttributes({"book", "author"})
@@ -20,14 +24,17 @@ public class BookController {
     private final BookService bookService;
     private final AuthorService authorService;
     private final BookStoreService bookStoreService;
-    public BookController(BookService bookService, AuthorService authorService, BookStoreService bookStoreService) {
+
+    private final ReviewService reviewService;
+    public BookController(BookService bookService, AuthorService authorService, BookStoreService bookStoreService,ReviewService reviewService) {
         this.bookService = bookService;
         this.authorService = authorService;
         this.bookStoreService = bookStoreService;
+        this.reviewService = reviewService;
     }
     @GetMapping
     public String getBooksPage(@RequestParam(required = false) String searchedBookName, Model model) {
-        if (searchedBookName != null) {
+        if (searchedBookName != null && !searchedBookName.isEmpty()) {
             Book book = bookService.listBooks().stream()
                     .filter(b -> b.getTitle().equals(searchedBookName))
                     .findFirst()
@@ -38,10 +45,16 @@ public class BookController {
         }
         return "listBooks";
     }
-
-    @PostMapping("/selectBook")
+    @GetMapping("/selectAuthor")
+    public String selectBookGet(Model model) {
+        model.addAttribute("authors", authorService.listAuthors());
+        return "authorList";
+    }
+    @PostMapping("/selectAuthor")
     public String selectBook(@RequestParam String bookIsbn, Model model) {
-        Book book = bookService.findBookByIsbn(bookIsbn);
+        Book book = bookService.findBookByIsbn(bookIsbn);//here is not getting the book and throws exception, please help me how to fix this
+        System.out.println("sea ke ispecati:");
+        System.out.println(book);
         if (book != null) {
             model.addAttribute("book", book);
             model.addAttribute("authors", authorService.listAuthors());
@@ -50,25 +63,39 @@ public class BookController {
             return "redirect:/books";
         }
     }
-    @GetMapping("/selectBook")
-    public String selectBookGet(@RequestParam String bookIsbn, Model model) {
-            model.addAttribute("authors", authorService.listAuthors());
-            return "authorList";
-    }
-    @PostMapping("/selectBook/selectAuthor")
+
+    @PostMapping("/selectAuthor/bookDetails")
     public String selectAuthor(@RequestParam Long authorId, Model model) {
         Book book = (Book) model.getAttribute("book");
+        System.out.println(book);
         Author author = authorService.findById(authorId).orElse(null);
         if (book != null && author != null) {
             model.addAttribute("author", author);
-            book.authors.add(author);
             model.addAttribute("book", book);
+            book.authors.add(author);
+            bookService.addAuthorToBook(author,book);
             return "bookDetails";
         } else {
 
             return "redirect:/books";
         }
     }
+    @GetMapping("selectAuthor/getAuthorPage")
+    public String getNewAuthorPage()
+    {
+        return "addNewAuthor";
+    }
+    @PostMapping("selectAuthor/saveAuthor")
+    public String saveNewAuthor(@RequestParam String name,
+                                @RequestParam String surname,
+                                @RequestParam String biography,
+                                @RequestParam LocalDate dateOfBirth,
+                                @RequestParam Long identification)
+    {
+        authorService.saveAuthor(identification,name,surname,biography,dateOfBirth);
+        return "redirect:/books";
+    }
+
     @PostMapping("/add")
     public String addBook(@RequestParam(required = false) String searchedBookName, Model model) {
         model.addAttribute("bookStores",bookStoreService.findAll());
@@ -80,11 +107,7 @@ public class BookController {
                           @RequestParam String isbn,
                           @RequestParam String genre,
                           @RequestParam Integer year,
-                           @RequestParam String storeId,
-                          Model model) {
-//        Book newBook = new Book(isbn, title, genre, year, new ArrayList<>());
-//        newBook.bookStore = bookStoreService.findAll().stream().filter(b -> b.getName().equals(storeId)).findFirst().orElse(null);
-//        bookService.listBooks().add(newBook);
+                           @RequestParam Long storeId) {
         bookService.saveBook(isbn,title,genre,year,storeId);
         return "redirect:/books";
     }
@@ -92,9 +115,8 @@ public class BookController {
     @PostMapping("/delete/{bookId}")
     public String deleteBook(@PathVariable String bookId)
     {
-        Book b = bookService.listBooks().stream().filter(bs->bs.getIsbn().matches(bookId)).findFirst().orElse(null);
-       bookService.listBooks().remove(b);
-       return "redirect:/books";
+        bookService.deleteBook(bookId);
+        return "redirect:/books";
     }
 
     @PostMapping("/edit/{bookId}")
@@ -103,20 +125,15 @@ public class BookController {
                            @RequestParam String isbn,
                            @RequestParam String genre,
                            @RequestParam Integer year,
-                           @RequestParam String storeId)
+                           @RequestParam Long storeId)
     {
-        Book book = bookService.findBookByIsbn(bookId);
-        book.title = title;
-        book.isbn = isbn;
-        book.genre = genre;
-        book.year = year;
-        book.bookStore = bookStoreService.findAll().stream().filter(bs->bs.getId().matches(storeId)).findFirst().orElse(null);
+
+        bookService.editBook(bookId,isbn,title,genre,year,storeId);
         return "redirect:/books";
     }
 
     @RequestMapping(value = "/getEditForm/{bookId}", method = {RequestMethod.GET, RequestMethod.POST})
     public String getEditBookForm(@PathVariable String bookId,
-                                  @RequestParam(required = false) String bookIdFromController,
                                   Model model) {
         Book book;
 
@@ -127,24 +144,26 @@ public class BookController {
         }
 
         if (book != null) {
-            model.addAttribute("storeOfTheBook", book.bookStore);
+            //model.addAttribute("storeOfTheBook", book.bookStore);
+            System.out.println(book.bookStore);
             model.addAttribute("bookStores", bookStoreService.findAll());
             model.addAttribute("book", book);
             return "editBook";
         }
         return "redirect:/books";
     }
-//    @GetMapping("/getEditForm/bookId")
-//    public String getEditBookForm(@PathVariable String bookId)
-//    {
-//        Book book = bookService.listBooks().stream().filter(b -> b.getIsbn().matches(bookId)).findFirst().orElse(null);
-//
-//        if (book != null) {
-//            return "redirect:books/getEditForm/" + bookId;
-//        }
-//
-//        return "redirect:/books";
-//        //treba dopolnitelno da frla nekoja greska, ne znam dali exception ili treba message da e pojavi.
-//    }
-
+    @GetMapping("/addReview")
+    public String getReviewPage(@RequestParam String bookIsbn, Model model) {
+        model.addAttribute("book", bookService.findBookByIsbn(bookIsbn));
+        return "addReview";
+    }
+    @PostMapping("/saveReview")
+    public String saveReview(@RequestParam String bookId,
+                             @RequestParam Integer score,
+                             @RequestParam String description,
+                             @RequestParam LocalDateTime timestamp) {
+        Book book = bookService.findBookByIsbn(bookId);
+        reviewService.saveReview(score,description,book,timestamp);
+        return "redirect:/books";
+    }
 }
