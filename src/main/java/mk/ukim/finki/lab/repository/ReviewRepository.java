@@ -1,18 +1,15 @@
 package mk.ukim.finki.lab.repository;
 
 import mk.ukim.finki.lab.model.Review;
-import mk.ukim.finki.lab.repository.jpa.ReviewInterface;
+import mk.ukim.finki.lab.service.jpa.ReviewJpa;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class ReviewRepository {
-    private final ReviewInterface ri;
+    private final ReviewJpa ri;
 
-    public ReviewRepository(ReviewInterface ri) {
+    public ReviewRepository(ReviewJpa ri) {
         this.ri = ri;
     }
-    public void save(Review r)
-    {
-        ri.save(r);
-    }
+
 }

@@ -54,8 +54,7 @@
 <div>
     <h2>Create New Author</h2>
     <form method="post" action="/books/selectAuthor/saveAuthor">
-        <label for="identification">ID:</label>
-        <input type="text" id="identification" name="identification" required>
+
 
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required>
@@ -72,7 +71,7 @@
         <input type="submit" class="btn-primary" value="Create Author">
     </form>
 
-    <a th:href="@{/authors}" class="btn-primary">Back to Author List</a>
+    <a th:href="@{/books/selectAuthor}" class="btn-primary">Back to Author List</a>
 </div>
 </body>
 </html>

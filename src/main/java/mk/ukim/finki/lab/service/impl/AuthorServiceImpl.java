@@ -2,12 +2,11 @@ package mk.ukim.finki.lab.service.impl;
 
 import mk.ukim.finki.lab.model.Author;
 import mk.ukim.finki.lab.repository.AuthorRepository;
-import mk.ukim.finki.lab.repository.jpa.AuthorInterface;
 import mk.ukim.finki.lab.service.AuthorService;
+import mk.ukim.finki.lab.service.jpa.AuthorJpa;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +15,11 @@ import java.util.Optional;
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
-    public AuthorServiceImpl(AuthorRepository ar)
+    private final AuthorJpa ajpa;
+    public AuthorServiceImpl(AuthorJpa ajpa,AuthorRepository authorRepository)
     {
-        this.authorRepository = ar;
+        this.ajpa = ajpa;
+        this.authorRepository = authorRepository;
     }
     @Override
     public List<Author> listAuthors() {
@@ -31,9 +32,11 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void saveAuthor(Long id,String name, String surname, String biography, LocalDate dof) {
-        authorRepository.save(new Author(id,name,surname,biography,dof));
+    public void saveAuthor(String name, String surname, String biography, LocalDate dof) {
+        ajpa.save(new Author(name,surname,biography,dof));
     }
+
+
 
 
 }

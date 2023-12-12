@@ -4,6 +4,7 @@ import lombok.Data;
 import mk.ukim.finki.lab.model.convertors.AuthorFullNameConvertor;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Data
@@ -12,22 +13,17 @@ import java.time.LocalDate;
 public class Author {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
-
-
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
-
-
     @Convert(converter = AuthorFullNameConvertor.class)
     private AuthorFullName fullname;
-
-
     public String biography;
-
-    public Author(Long id, String name, String surname, String biography, LocalDate dateOfBirth) {
-        this.id = id;
+    @ManyToMany
+    public List<Book> books;
+    public Author(String name, String surname, String biography, LocalDate dateOfBirth) {
         this.biography = biography;
         this.fullname = new AuthorFullName(name,surname);
         this.dateOfBirth = dateOfBirth;

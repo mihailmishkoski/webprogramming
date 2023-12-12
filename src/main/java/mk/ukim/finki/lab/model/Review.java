@@ -18,17 +18,17 @@ public class Review {
     private Integer score;
     private String description;
 
-
     @ManyToOne
+    @JoinColumn(name = "book_id")
     private Book book;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
-    public Review(Integer score, String description, Book book, LocalDateTime timestamp) {
+
+    public Review(Integer score, String description,LocalDateTime timestamp) {
         this.score = score;
         this.description = description;
-        this.book = book;
         this.timestamp = timestamp;
     }
 
@@ -37,9 +37,7 @@ public class Review {
     }
 
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+
 
 
 }

@@ -13,13 +13,23 @@
             padding: 0;
         }
 
-        div {
-            max-width: 600px;
+        div.container {
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-top: 50px;
+            display: grid;
+            grid-gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        div.review-container {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
 
         form {
@@ -32,7 +42,8 @@
         }
 
         input,
-        select {
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
@@ -48,27 +59,62 @@
             color: #fff;
             cursor: pointer;
         }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px;
+            margin: 0; /* Added to remove default margin */
+        }
+
+        /* Center the button */
+        form button {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Align button and form at the same height */
+        div.container > div {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 
 <body>
-<div>
-    <h2>Add Review for Book: <span th:text="${book.title}"></span></h2>
-    <form action="/books/saveReview/" method="post">
-        <input type="hidden" name="bookId" th:value="${book.getIsbn()}">
 
-        <label for="score">Score:</label>
-        <input type="number" id="score" name="score" required>
+<div class="container">
+    <div>
+        <h2 th:text="'Reviews for Book: ' + ${book.getTitle()}"></h2>
+        <div th:if="${not #lists.isEmpty(book.reviews)}">
+            <div th:each="review : ${book.reviews}" class="review-container">
+                <p th:text="'Comment: ' + ${review.getDescription()}"></p>
+                <p th:text="'Rating: ' + ${review.getScore()}"></p>
+            </div>
+        </div>
+        <p th:if="${#lists.isEmpty(book.reviews)}">No reviews available for this book.</p>
+    </div>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" required></textarea>
+    <div>
+        <h2>Add Review for Book: <span th:text="${book.title}"></span></h2>
+        <form action="/books/saveReview" method="post">
+            <input type="hidden" name="bookId" th:value="${book.getId()}">
+            <label for="score">Score:</label>
+            <input type="number" id="score" name="score" required>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            <label>Date and Time:</label>
+            <input type="datetime-local" name="timestamp" required>
+            <input type="submit" value="Add Review">
+        </form>
+    </div>
 
-        <label>Date and Time:</label>
-        <input type="datetime-local" name="timestamp" required>
-
-        <input type="submit" value="Add Review">
+    <form method="get" th:action="'/books/addReview/' +${book.getId()}">
+        <button>Sort by rating</button>
     </form>
 </div>
+
 </body>
 
 </html>

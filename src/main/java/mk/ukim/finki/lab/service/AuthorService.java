@@ -12,6 +12,7 @@ public interface AuthorService {
 
     Optional<Author> findById(Long id);
 
-    void saveAuthor(Long id, String name, String surname, String biography, LocalDate dof);
+    void saveAuthor(String name, String surname, String biography, LocalDate dof);
+//    void deleteReviewByIsbn(String isbn);
 
 }

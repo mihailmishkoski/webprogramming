@@ -1,10 +1,7 @@
 package mk.ukim.finki.lab.repository;
 
-import mk.ukim.finki.lab.bootstrap.DataHolder;
-import mk.ukim.finki.lab.model.Book;
 import mk.ukim.finki.lab.model.BookStore;
-import mk.ukim.finki.lab.repository.jpa.BookStoreInterface;
-import mk.ukim.finki.lab.service.BookStoreService;
+import mk.ukim.finki.lab.service.jpa.BookStoreJpa;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,15 +10,18 @@ import java.util.List;
 public class BookStoreRepository {
 
 
-    private final BookStoreInterface bsi;
+    private final BookStoreJpa bsi;
 
-    public BookStoreRepository(BookStoreInterface bsi) {
+    public BookStoreRepository(BookStoreJpa bsi) {
         this.bsi = bsi;
     }
 
     public List<BookStore> findAll() {
-        return DataHolder.bookStore;
+        return bsi.findAll();
     }
-
+    public BookStore findById(Long bookStoreId)
+    {
+        return bsi.findById(bookStoreId).orElse(null);
+    }
 
 }

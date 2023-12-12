@@ -1,20 +1,17 @@
 package mk.ukim.finki.lab.repository;
 
-import mk.ukim.finki.lab.bootstrap.DataHolder;
 import mk.ukim.finki.lab.model.Author;
-import mk.ukim.finki.lab.repository.jpa.AuthorInterface;
-import mk.ukim.finki.lab.service.AuthorService;
+import mk.ukim.finki.lab.service.jpa.AuthorJpa;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class AuthorRepository  {
-    private final AuthorInterface ai;
+    private final AuthorJpa ai;
 
-    public AuthorRepository(AuthorInterface ai) {
+    public AuthorRepository(AuthorJpa ai) {
         this.ai = ai;
     }
 
@@ -23,12 +20,13 @@ public class AuthorRepository  {
         return ai.findAll();
     }
     public Optional<Author> findById(Long id) {
-        //return DataHolder.authors.stream().filter(a -> a.getId().equals(id)).findFirst();
         return ai.findById(id);
     }
-    public void save(Author a)
-    {
-        ai.save(a);
-        DataHolder.authors.add(a);
-    }
+
+
+//    @Transactional
+//    public void deleteReviewByIsbn(String isbn)
+//    {
+//        ai.findById(isbn);
+//    }
 }

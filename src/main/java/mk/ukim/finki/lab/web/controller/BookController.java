@@ -3,6 +3,7 @@ package mk.ukim.finki.lab.web.controller;
 import mk.ukim.finki.lab.model.Author;
 import mk.ukim.finki.lab.model.Book;
 import mk.ukim.finki.lab.model.BookStore;
+import mk.ukim.finki.lab.model.Review;
 import mk.ukim.finki.lab.model.exceptions.BookNotFoundException;
 import mk.ukim.finki.lab.service.AuthorService;
 import mk.ukim.finki.lab.service.BookService;
@@ -14,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 @Controller
 @SessionAttributes({"book", "author"})
@@ -51,10 +51,8 @@ public class BookController {
         return "authorList";
     }
     @PostMapping("/selectAuthor")
-    public String selectBook(@RequestParam String bookIsbn, Model model) {
-        Book book = bookService.findBookByIsbn(bookIsbn);//here is not getting the book and throws exception, please help me how to fix this
-        System.out.println("sea ke ispecati:");
-        System.out.println(book);
+    public String selectBook(@RequestParam Long bookId, Model model) {
+        Book book = bookService.findBookById(bookId);
         if (book != null) {
             model.addAttribute("book", book);
             model.addAttribute("authors", authorService.listAuthors());
@@ -67,16 +65,19 @@ public class BookController {
     @PostMapping("/selectAuthor/bookDetails")
     public String selectAuthor(@RequestParam Long authorId, Model model) {
         Book book = (Book) model.getAttribute("book");
-        System.out.println(book);
         Author author = authorService.findById(authorId).orElse(null);
+
         if (book != null && author != null) {
+            // Fetch the authors collection within the same transaction
+            List<Author> authors = bookService.getAuthorsForBook(book.getId());
+
             model.addAttribute("author", author);
             model.addAttribute("book", book);
-            book.authors.add(author);
-            bookService.addAuthorToBook(author,book);
+            book.authors = authors;  // Set the fetched authors to the book
+            bookService.addAuthorToBook(author, book);
+
             return "bookDetails";
         } else {
-
             return "redirect:/books";
         }
     }
@@ -89,15 +90,14 @@ public class BookController {
     public String saveNewAuthor(@RequestParam String name,
                                 @RequestParam String surname,
                                 @RequestParam String biography,
-                                @RequestParam LocalDate dateOfBirth,
-                                @RequestParam Long identification)
+                                @RequestParam LocalDate dateOfBirth)
     {
-        authorService.saveAuthor(identification,name,surname,biography,dateOfBirth);
-        return "redirect:/books";
+        authorService.saveAuthor(name,surname,biography,dateOfBirth);
+        return "redirect:/books/selectAuthor";
     }
 
     @PostMapping("/add")
-    public String addBook(@RequestParam(required = false) String searchedBookName, Model model) {
+    public String addBook(Model model) {
         model.addAttribute("bookStores",bookStoreService.findAll());
         return "addBook";
     }
@@ -113,14 +113,15 @@ public class BookController {
     }
 
     @PostMapping("/delete/{bookId}")
-    public String deleteBook(@PathVariable String bookId)
+    public String deleteBook(@PathVariable Long bookId)
     {
+
         bookService.deleteBook(bookId);
         return "redirect:/books";
     }
 
     @PostMapping("/edit/{bookId}")
-    public String editBook(@PathVariable String bookId,
+    public String editBook(@PathVariable Long bookId,
                            @RequestParam String title,
                            @RequestParam String isbn,
                            @RequestParam String genre,
@@ -133,36 +134,44 @@ public class BookController {
     }
 
     @RequestMapping(value = "/getEditForm/{bookId}", method = {RequestMethod.GET, RequestMethod.POST})
-    public String getEditBookForm(@PathVariable String bookId,
+    public String getEditBookForm(@PathVariable Long bookId,
                                   Model model) {
         Book book;
 
         if (bookId != null) {
-            book = bookService.findBookByIsbn(bookId);
+            book = bookService.findBookById(bookId);
         } else {
             return "redirect:/books";
         }
 
         if (book != null) {
-            //model.addAttribute("storeOfTheBook", book.bookStore);
-            System.out.println(book.bookStore);
             model.addAttribute("bookStores", bookStoreService.findAll());
             model.addAttribute("book", book);
             return "editBook";
         }
         return "redirect:/books";
     }
-    @GetMapping("/addReview")
-    public String getReviewPage(@RequestParam String bookIsbn, Model model) {
-        model.addAttribute("book", bookService.findBookByIsbn(bookIsbn));
+
+    @PostMapping("/addReview/{bookId}")
+    public String getReviewPage(Model model, @PathVariable Long bookId) {
+        Book book = bookService.findBookById(bookId);
+        model.addAttribute("book", book);
         return "addReview";
     }
+    @GetMapping("/addReview/{bookId}")
+    public String getReviewByKeyword(Model model, @PathVariable Long bookId) {
+        Book book = bookService.findBookById(bookId);
+        Collections.sort(book.getReviews(), Comparator.comparingInt(Review::getScore));
+        model.addAttribute("book", book);
+        return "addReview";
+    }
+
     @PostMapping("/saveReview")
-    public String saveReview(@RequestParam String bookId,
+    public String saveReview(@RequestParam Long bookId,
                              @RequestParam Integer score,
                              @RequestParam String description,
                              @RequestParam LocalDateTime timestamp) {
-        Book book = bookService.findBookByIsbn(bookId);
+        Book book = bookService.findBookById(bookId);
         reviewService.saveReview(score,description,book,timestamp);
         return "redirect:/books";
     }

@@ -1,32 +1,36 @@
 package mk.ukim.finki.lab.service.impl;
 
-import mk.ukim.finki.lab.bootstrap.DataHolder;
 import mk.ukim.finki.lab.model.Author;
 import mk.ukim.finki.lab.model.Book;
 import mk.ukim.finki.lab.model.BookStore;
-import mk.ukim.finki.lab.repository.AuthorRepository;
+import mk.ukim.finki.lab.model.Review;
 import mk.ukim.finki.lab.repository.BookRepository;
-import mk.ukim.finki.lab.repository.BookStoreRepository;
+import mk.ukim.finki.lab.service.BookStoreService;
+import mk.ukim.finki.lab.service.jpa.BookJpa;
+import mk.ukim.finki.lab.service.jpa.BookStoreJpa;
 import mk.ukim.finki.lab.service.BookService;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookServiceImpl implements BookService {
 
     private final BookRepository br;
 
-    private final AuthorRepository ar;
+    private final BookJpa bjpa;
+    private final BookStoreJpa bsjpa;
 
-    private final BookStoreImpl bsi;
 
-    public BookServiceImpl(BookRepository br, AuthorRepository ar, BookStoreImpl bsi) {
+    private final BookStoreService bss;
+
+    public BookServiceImpl(BookRepository br, BookStoreServiceImpl bsi, BookJpa bjpa, BookStoreJpa bsjpa, BookStoreService bss) {
         this.br = br;
-        this.ar = ar;
-        this.bsi = bsi;
+        this.bjpa = bjpa;
+        this.bsjpa = bsjpa;
+        this.bss = bss;
     }
 
     @Override
@@ -36,43 +40,57 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Author addAuthorToBook(Author author, Book book) {
-            return br.addAuthorToBook(author, book);
+            book.authors.add(author);
+            return author;
     }
 
     @Override
-    public Book findBookByIsbn(String isbn) {
-        return br.findByIsbn(isbn);
+    public Book findBookById(Long id) {
+        return br.findById(id);
+    }
+    @Override
+    public List<Author> getAuthorsForBook(Long id) {
+        Book book = br.findById(id);
+        return book != null ? book.getAuthors() : Collections.emptyList();
     }
 
     @Override
     public void saveBook(String isbn, String title, String genre, Integer year, Long bookStoreId) {
-        br.saveBook(isbn, title, genre, year, bookStoreId);
+        Book book = new Book(isbn,title,genre,year,new ArrayList<>());
+        BookStore bookStore = bss.findById(bookStoreId);
+        book.bookStore = bookStore;
+        bss.saveBookStore(bookStore);
+        bjpa.save(book);
 
     }
 
     @Override
-    public void editBook(String oldIsbn,String isbn, String title, String genre, Integer year, Long bookStoreId)
+    public void addReview(Book book, Review review)
     {
-        Book book = br.listBooks().stream().filter(b->b.getIsbn().matches(oldIsbn)).findFirst().orElse(null);
+        book.reviews.add(review);
+        bjpa.save(book);
+    }
+
+    @Override
+    public void editBook(Long bookId,String isbn, String title, String genre, Integer year, Long bookStoreId)
+    {
+        Book book = br.listBooks().stream().filter(b->b.getId()==(bookId)).findFirst().orElse(null);
+        book.isbn = isbn;
+        book.title = title;
+        book.genre = genre;
+        book.year = year;
+        book.bookStore = bss.findById(bookStoreId);
+        bjpa.save(book);
+    }
+
+    @Override
+    public void deleteBook(Long isbn)
+    {
+        Book book = br.listBooks().stream().filter(b->b.getId()==isbn).findFirst().orElse(null);
         if(book!=null)
         {
-            book.setTitle(title);
-            book.setYear(year);
-            book.setGenre(genre);
-            book.setIsbn(isbn);
-            BookStore bookStore = bsi.findAll().stream().filter(bs->bs.getId().equals(bookStoreId)).findFirst().orElse(null);
-            System.out.println(bookStore.name);
-            book.bookStore = bookStore;
+            bjpa.delete(book);
         }
-        else
-        {
-            saveBook(isbn,title,genre,year,bookStoreId);
-        }
-    }
-    @Override
-    public void deleteBook(String isbn)
-    {
-        br.delete(isbn);
     }
 
 }

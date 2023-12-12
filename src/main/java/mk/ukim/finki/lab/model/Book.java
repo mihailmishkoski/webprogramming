@@ -13,17 +13,18 @@ import java.util.Random;
 @Table(name = "book")
 public class Book {
     @Id
-    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
     public String isbn;
     public String title;
     public String genre;
     public Integer year;
-    @OneToMany
+    @ManyToMany
     public List<Author> authors;
-
     @ManyToOne
     public BookStore bookStore;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.REMOVE)
     public List<Review> reviews;
     public Book(String isbn, String title, String genre, Integer year, List<Author>authors) {
         this.isbn = isbn;
@@ -31,10 +32,7 @@ public class Book {
         this.genre = genre;
         this.year = year;
         this.authors = authors;
-        Random random = new Random();
-        int randomIndex = random.nextInt(DataHolder.bookStore.size());
-        bookStore = DataHolder.bookStore.get(randomIndex);
-        reviews = new ArrayList<>();
+
     }
     public Book() {
 
